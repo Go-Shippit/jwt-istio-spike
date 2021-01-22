@@ -93,9 +93,9 @@ spec:
     matchLabels:
       istio: ingressgateway
   jwtRules:
-  - issuer: "ISSUER"
+  - issuer: "shippit.com"
     jwks: |
-      { "keys": [{"kty":"RSA","n":"4pL-O8LnvzpX8asAwmSLqpUjJhX4mYbqiwzTn96Qe9Ts32KSSsoA0GBQuQFbVLmy4zVYXNyQ1_XXcs4eKrJFezZo0labTWQftP95WGNpUGH3UdEHlxcAU8Cl4zNpragpFPX_R9f06RSQmsk8XP4iBBHj_dELuGLMShj59KDisXKrVmm4T2csN_HhlHZJEpkrnRkERRSVKn9XVCtodQWMtSR259CTv8fAvvsXQE1LcXLJiRUW_o4DaGXtCUy83Ts2jX9MdFE_OzahwafZAHFhzsvpG_UJkQnFxomC67PIslBpJrCty48GwsI3DPcLgqfvCviTQQ-IhVvhq5AFHcfCfw","e":"AQAB","kid":"5fe6d2426a8f111647c8912de7349c4d1d5a8b849de5f4aa683275af8ee06684"}] }
+      { "keys": [{"kty":"RSA","n":"qA1NwdNOHZ7g4rAv7b8gFUEyxG0SzwGJpPkIaJdPdNnNtC9bUl6rM_aVLNCdzhKUB2nVMD7nL9OfK8h9tGsHjQ0cDILRtsFnpxh39sW9ziTWeF7dhyIKm4w5_AAdCNYLLZMsxVrLFcHt6KJww8J9Opj6hzRHSH_BqgYXru5zvO457s09JCwzcp8JVOVN48kmbiQH0sOSmPRmcCEsBRIkUMGFbotGmrX3iay0bjsMf3F-b_qgl9VOc0aAVNKah71LhdNUiCwbebrtoATbmnBQoQX2TR7GpbfnmGTtKiS8NZUOLfS9jG0z9Q3FmSraTZaLN2ULSgRCbtqcAJjzbkj5Pw","e":"AQAB","kid":"86250c5210eb022f583fa76e958c1c3112f10da69f39d062192b5dddeed16102"}] }
 
 ---
 apiVersion: "security.istio.io/v1beta1"
