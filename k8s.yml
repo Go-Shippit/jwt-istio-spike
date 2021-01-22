@@ -1,0 +1,112 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: "jwt-istio-spike"
+  namespace: main
+  labels:
+    app: jwt-istio-spike
+  annotations:
+    checkov.io/skip1: CKV_K8S_43=We don't have a way to get digest in BK yet
+    checkov.io/skip2: CKV_K8S_9=We dont't expose healthcheck endpoints for backround jobs yet
+    checkov.io/skip3: CKV_K8S_8=We dont't expose healthcheck endpoints for backround jobs yet
+    checkov.io/skip4: CKV_K8S_38=We need to mount Service Account Tokens for IAM role mapping
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: jwt-istio-spike
+  progressDeadlineSeconds: 120
+  revisionHistoryLimit: 3
+  template:
+    metadata:
+      labels:
+        app: jwt-istio-spike
+      annotations:
+        seccomp.security.alpha.kubernetes.io/pod: "docker/default"
+    spec:
+      securityContext:
+        runAsNonRoot: false
+        fsGroup: 65534
+      containers:
+        - name: app
+          image: "dgkanatsios/simpleapp"
+          imagePullPolicy: Always
+          resources:
+            requests:
+              cpu: "0.1"
+              memory: "300Mi"
+            limits:
+              cpu: "0.2"
+              memory: "600Mi"
+          securityContext:
+            runAsUser: 20000
+            runAsGroup: 20000
+            runAsNonRoot: true
+            privileged: false
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop:
+                - ALL
+---
+apiVersion: autoscaling/v2beta2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: jwt-istio-spike
+  namespace: main
+  labels:
+    app: jwt-istio-spike
+    owner: "Foundation"
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: jwt-istio-spike
+  minReplicas: 3
+  maxReplicas: 10
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 60
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: jwt-istio-spike
+  namespace: main
+  labels:
+    app: jwt-istio-spike
+    service: jwt-istio-spike
+spec:
+  selector:
+    app: jwt-istio-spike
+  ports:
+    - port: 8080
+      targetPort: 8080
+      name: http
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: jwt-istio-spike
+  namespace: main
+spec:
+  hosts:
+  - "*"
+  gateways:
+  - private
+  - public
+  http:
+  - match:
+    - uri:
+        prefix: "/jwt-istio-spike/"
+    rewrite:
+      uri: "/"
+    route:
+    - destination:
+        host: jwt-istio-spike
+        port:
+          number: 8080
