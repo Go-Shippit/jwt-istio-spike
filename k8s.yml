@@ -74,7 +74,7 @@ spec:
   http:
   - match:
     - uri:
-        prefix: "/jwt-istio-spike/"
+        prefix: "/jwt-istio-spike"
     rewrite:
       uri: "/"
     route:
@@ -111,5 +111,4 @@ spec:
         notRequestPrincipals: ["*"]
     to:
     - operation:
-        methods: ["GET"]
-        paths: ["/jwt-istio-spike*"]
+        paths: ["/jwt-istio-spike"]
