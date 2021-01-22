@@ -5,13 +5,8 @@ metadata:
   namespace: main
   labels:
     app: jwt-istio-spike
-  annotations:
-    checkov.io/skip1: CKV_K8S_43=We don't have a way to get digest in BK yet
-    checkov.io/skip2: CKV_K8S_9=We dont't expose healthcheck endpoints for backround jobs yet
-    checkov.io/skip3: CKV_K8S_8=We dont't expose healthcheck endpoints for backround jobs yet
-    checkov.io/skip4: CKV_K8S_38=We need to mount Service Account Tokens for IAM role mapping
 spec:
-  replicas: 3
+  replicas: 1
   selector:
     matchLabels:
       app: jwt-istio-spike
@@ -48,29 +43,6 @@ spec:
             capabilities:
               drop:
                 - ALL
----
-apiVersion: autoscaling/v2beta2
-kind: HorizontalPodAutoscaler
-metadata:
-  name: jwt-istio-spike
-  namespace: main
-  labels:
-    app: jwt-istio-spike
-    owner: "Foundation"
-spec:
-  scaleTargetRef:
-    apiVersion: apps/v1
-    kind: Deployment
-    name: jwt-istio-spike
-  minReplicas: 3
-  maxReplicas: 10
-  metrics:
-  - type: Resource
-    resource:
-      name: cpu
-      target:
-        type: Utilization
-        averageUtilization: 60
 ---
 apiVersion: v1
 kind: Service
@@ -110,3 +82,35 @@ spec:
         host: jwt-istio-spike
         port:
           number: 8080
+---
+apiVersion: "security.istio.io/v1beta1"
+kind: "RequestAuthentication"
+metadata:
+  name: jwt-istio-spike
+  namespace: istio-system
+spec:
+  selector:
+    matchLabels:
+      app: jwt-istio-spike
+      namespace: main
+  jwtRules:
+  - issuer: "ISSUER"
+    jwks: |
+      { "keys": [{"kty":"RSA","n":"4pL-O8LnvzpX8asAwmSLqpUjJhX4mYbqiwzTn96Qe9Ts32KSSsoA0GBQuQFbVLmy4zVYXNyQ1_XXcs4eKrJFezZo0labTWQftP95WGNpUGH3UdEHlxcAU8Cl4zNpragpFPX_R9f06RSQmsk8XP4iBBHj_dELuGLMShj59KDisXKrVmm4T2csN_HhlHZJEpkrnRkERRSVKn9XVCtodQWMtSR259CTv8fAvvsXQE1LcXLJiRUW_o4DaGXtCUy83Ts2jX9MdFE_OzahwafZAHFhzsvpG_UJkQnFxomC67PIslBpJrCty48GwsI3DPcLgqfvCviTQQ-IhVvhq5AFHcfCfw","e":"AQAB","kid":"5fe6d2426a8f111647c8912de7349c4d1d5a8b849de5f4aa683275af8ee06684"}] }
+
+---
+apiVersion: "security.istio.io/v1beta1"
+kind: "AuthorizationPolicy"
+metadata:
+  name: jwt-istio-spike
+  namespace: istio-system
+spec:
+  selector:
+    matchLabels:
+      app: jwt-istio-spike
+      namespace: main
+  action: DENY
+  rules:
+  - from:
+    - source:
+        notRequestPrincipals: ["*"]
