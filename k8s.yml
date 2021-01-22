@@ -87,12 +87,11 @@ apiVersion: "security.istio.io/v1beta1"
 kind: "RequestAuthentication"
 metadata:
   name: jwt-istio-spike
-  namespace: istio-system
+  namespace: main
 spec:
   selector:
     matchLabels:
-      app: jwt-istio-spike
-      namespace: main
+      istio: ingressgateway
   jwtRules:
   - issuer: "ISSUER"
     jwks: |
@@ -103,12 +102,11 @@ apiVersion: "security.istio.io/v1beta1"
 kind: "AuthorizationPolicy"
 metadata:
   name: jwt-istio-spike
-  namespace: istio-system
+  namespace: main
 spec:
   selector:
     matchLabels:
-      app: jwt-istio-spike
-      namespace: main
+      istio: ingressgateway
   action: DENY
   rules:
   - from:
